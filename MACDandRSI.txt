@@ -1,0 +1,51 @@
+//@version=4
+
+// https://www.tradingview.com/script/7CFXv2my-MACD-RSI-Robert-s-Version/
+
+study(title="MACD + RSI Robert's Version", shorttitle="MACD and RSI")
+
+// MACD
+src = input(title="Source", type=input.source, defval=close)
+fast_length = input(title="MACD Fast Length", type=input.integer, defval=12)
+slow_length = input(title="MACD Slow Length", type=input.integer, defval=26)
+signal_length = input(title="MACD Signal Smoothing", type=input.integer, minval=1, maxval=50, defval=9)
+sma_source = input(title="MACD Simple MA (Oscillator)", type=input.bool, defval=false)
+sma_signal = input(title="MACD Simple MA (Signal Line)", type=input.bool, defval=false)
+
+// Plot colors
+col_grow_above = #26A69A
+col_grow_below = #FFCDD2
+col_fall_above = #B2DFDB
+col_fall_below = #e57373
+col_macd = #0094ff
+col_signal = #ff6a00
+
+// Calculating
+sma_1 = sma(src, fast_length)
+ema_1 = ema(src, fast_length)
+fast_ma = sma_source ? sma_1 : ema_1
+sma_2 = sma(src, slow_length)
+ema_2 = ema(src, slow_length)
+slow_ma = sma_source ? sma_2 : ema_2
+macd = fast_ma - slow_ma
+sma_3 = sma(macd, signal_length)
+ema_3 = ema(macd, signal_length)
+signal = sma_signal ? sma_3 : ema_3
+hist = (macd - signal)
+
+plot(hist, title="Histogram", style=plot.style_columns, color=hist >= 0 ? hist[1] < hist ? col_grow_above : col_fall_above : hist[1] < hist ? col_grow_below : col_fall_below, transp=0)
+plot(macd, title="MACD", color=col_macd, transp=0)
+plot(signal, title="Signal", color=col_signal, transp=0)
+
+
+// RSI
+len = input(14, minval=1, title="RSI Length")
+up = rma(max(change(src), 0), len)
+down = rma(-min(change(src), 0), len)
+rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - 100 / (1 + up / down)
+scale = 0.05
+move = 0
+plot((rsi - 50) * scale - move, color=color.yellow)
+band1 = hline(20 * scale - move)
+band0 = hline(-20 * scale - move)
+fill(band1, band0, color=color.purple, transp=94)
