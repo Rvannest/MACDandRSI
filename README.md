@@ -2,7 +2,7 @@
 
 https://www.tradingview.com/script/7CFXv2my-MACD-RSI-Robert-s-Version/
 
-+140 Likes
++150 Likes
 
 Combination of MACD and RSI || Public Script TradingView
 
